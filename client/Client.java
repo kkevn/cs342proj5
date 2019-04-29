@@ -12,7 +12,8 @@ public class Client extends Thread{
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
     private FrontEndClient gui;
-    private ArrayList<String> opponentList = new ArrayList<String>();
+    private ArrayList<Lobby> lobbyList = new ArrayList<>();
+    private Lobby connected_lobby;
     private int gameID;
     private boolean gameOver = false;
 
@@ -78,7 +79,7 @@ public class Client extends Thread{
         String serverMessage;
         Scanner parser;
         String command;
-        String userName;
+        String lobbyName;
         String gameNumber;
         while(true) {
 
@@ -91,22 +92,35 @@ public class Client extends Thread{
 
                 if(command.equalsIgnoreCase("add")) {
                     //add to arraylist
-                    userName = parser.next();
-                    opponentList.add(userName);
-                    System.out.println("user: " + userName + " added");
-                    gui.updateClientList();
+                    lobbyName = parser.next();
+                    
+                    //TODO
+                    // figure out how to parse a list of all lobby objects to client
+                    // (1) probably have server send lobby.print() and carefully parse
+                    // all outputs of print() into new lobby object
+                    // OR (and this is better idea, i think) (2) is to use
+                    // objectoutputstream because i think that can parse objects
+                    // if using (2), lobbyName should not be a string, but lobby object
+                    
+                    //obbyList.add(lobbyName);
+                    
+                    System.out.println("user: " + lobbyName + " added");
+                    gui.updateLobbyList();
                 }
                 else if(command.equalsIgnoreCase("challenged")) {
-                    userName = parser.next();
+                    lobbyName = parser.next();
                     gameNumber = parser.next();
                     this.gameID = Integer.parseInt(gameNumber);
                     gameOver = false;
-                    System.out.println("user: " + userName + " has challenged you");
+                    System.out.println("user: " + lobbyName + " has challenged you");
                     //--update GUI with connected message
                     gui.setServerText(command);
-                    gui.setConnectedTo(userName);
+                    //gui.setConnectedTo(userName);
                     
                     break;
+                }
+                else if(command.equalsIgnoreCase("join")) {
+                    // TODO figure out joining a lobby
                 }
 
             } catch (IOException e) {
@@ -126,6 +140,7 @@ public class Client extends Thread{
         String score, score2;
         String result;
         String winner;
+        String newWord;
         int parseCount = 0;
 
         while(true) {
@@ -156,10 +171,15 @@ public class Client extends Thread{
                 }
 
                 //--update GUI with total score, opponent played, server message
-                gui.setTotalpointsText(score, score2);
-                gui.setOpponentplayedText(opponentPlayed);
+                //gui.setTotalpointsText(score, score2);
+                //gui.setOpponentplayedText(opponentPlayed);
                 //gui.setServerText(result);
-                gui.updateGameInfo(Integer.parseInt(winner));
+                //gui.updateGameInfo(Integer.parseInt(winner));
+                
+                // TODO get new word from server
+                newWord = "some new word";
+                gui.updateGameInfo(newWord, Integer.parseInt(winner));
+                
                 System.out.println("SERVER REPLY MESSAGE: " + serverMessage);
 
                 if(gameOver == true){
@@ -192,6 +212,17 @@ public class Client extends Thread{
             e.printStackTrace();
         }
     }
+    
+    // notify server that client finished typing word
+    public void setDone() {
+        
+        try {
+            outputStream.writeUTF("done " + this.gameID + " " + this.userName);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     //send game choice to the server
     public void sendMessage(String message) {
@@ -216,14 +247,51 @@ public class Client extends Thread{
             e.printStackTrace();
         }
     }
+    
+    // notify server that client wants to join a server
+    public void joinLobby(String lobby_name) {
 
-    public ArrayList<String> getOpponentList() {
-        return opponentList;
+        try {
+            outputStream.writeUTF("join " + this.userName + " " + lobby_name);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // notify server that client created a server
+    public void setupLobby(String lobby_name) {
+
+        try {
+            outputStream.writeUTF("create " + this.userName + " " + lobby_name);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // notify server that client logged out
+    public void logout() {
+
+        try {
+            outputStream.writeUTF("logout " + this.userName);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public Lobby getLobby() {
+        return connected_lobby;
+    }
+    
+    public ArrayList<Lobby> getLobbyList() {
+        return lobbyList;
     }
 
     public void resetClientGame(){
         gameOver = false;
-        gui.score = 0; gui.opponent_score = 0; gui.rounds = 1; gui.status = -1;
+        gui.score = 0; gui.word = ""; gui.rounds = 1; gui.status = -1;
         ready();
     }
 
