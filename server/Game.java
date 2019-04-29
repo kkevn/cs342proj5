@@ -40,7 +40,7 @@ public class Game {
 
     public void createWords(){
         try {
-            scanner = new Scanner(new File("words.txt"));
+            scanner = new Scanner(new File("src/words.txt"));
             words = new ArrayList<String>();
         }
         catch (FileNotFoundException e){
