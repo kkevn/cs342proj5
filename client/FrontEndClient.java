@@ -701,6 +701,8 @@ public class FrontEndClient extends Application {
                 title += "Playing against other Clients";
                 mainStage.setScene(s_game);
                 updateScoreList();
+                // set focus to text field
+                tf_word.requestFocus();
                 break;
         }
 
@@ -977,6 +979,9 @@ public class FrontEndClient extends Application {
         // update score list every round
         updateScoreList();
         
+        // set focus to text field
+        tf_word.requestFocus();
+        
         // update score counters based on round winner
         switch (status) {
 
@@ -1100,8 +1105,13 @@ public class FrontEndClient extends Application {
         // input matches word, notify server and prevent more typing
         if (input.equals(word)) {
             t_word.setFill(Color.GREEN);
-            tf_word.clear();
+            
+            Platform.runLater(() -> { 
+                tf_word.clear(); 
+            });
             setClientDone();
+            
+            // TODO, remove updateGameInfo below and uncomment setDisable
             updateGameInfo(randomWord(), 0);
             //tf_word.setDisable(true);
         }
