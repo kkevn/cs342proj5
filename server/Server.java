@@ -16,6 +16,8 @@ public class Server extends Thread {
     private ArrayList<Game> games  = new ArrayList<Game>();
     Socket clientSocket;
 
+    private ArrayList<Lobby> lobbyList = new ArrayList<Lobby>();
+
     public Server(int portNum, frontEndServer gui){
         this.gui = gui;
         this.port = portNum;
@@ -61,7 +63,7 @@ public class Server extends Thread {
 
 
                 //TODO -- Create function to update new user with all the lobbies and information
-
+                updateClientWithAllLobbies(client);
 
                 //initiate connection logistics
                 connection.start();
@@ -75,6 +77,23 @@ public class Server extends Thread {
         catch (IOException ex){
             ex.printStackTrace();
         }
+    }
+
+    private void updateClientWithAllLobbies(Client c){
+        //send create_lobby command to new client for all lobbies
+        for(int i = 0; i<lobbyList.size(); i++){
+            c.sendMsgToClient("create_lobby " + lobbyList.get(i).getLobbyName());
+        }
+
+        //send joined command to new client for all clients who are in a lobby
+        for(Lobby l : lobbyList){
+            for(String user : l.getLobbyUserNames()){
+                c.getClientsServerConnection().msgClientToJoinPlayer(l.getLobbyName(), user);
+            }
+        }
+
+
+
     }
 
     private void updateList(String userName) {
@@ -170,6 +189,24 @@ public class Server extends Thread {
         //Game newgame = new Game(p1Index, p2Index, gameCounter, listOfClientConnections);
         //games.add(newgame);
         gameCounter++;
+    }
+
+    public ArrayList<Lobby> getLobbyList(){ return lobbyList; }
+
+
+    //Function to get clients ID index given a username
+    public int getClientIndexFromUsername(String uName){
+        for(int i = 0; i<listOfClientConnections.size(); i++){
+            if(uName.equals(listOfClientConnections.get(i).userName)){
+                return listOfClientConnections.get(i).connectionID;
+            }
+        }
+        return -1; //player name not found
+    }
+
+    //Send user join update to the client so they can add the person to their psuedo-lobby
+    private void sendUserToLobby(String name, int lobbyIndex){
+
     }
 
 }

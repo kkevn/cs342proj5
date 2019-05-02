@@ -39,73 +39,47 @@ public class ServerConnection extends Thread {
         String userName;
         String opponentName;
 
+        String lobbyName;
+
         try {
         while(true) {
                 clientMessage = inputStream.readUTF();
                 parser = new Scanner(clientMessage);
                 command = parser.next();
-                /*COMMENTED TO RUN NEW CODE
-
-                if(command.equalsIgnoreCase("challenge")) {
-                    int userOneIndex = -1;
-                    int userTwoIndex = -1;
-                    userName = parser.next();
-                    opponentName = parser.next();
-
-                    //check if opponent is available
-
-                    //if available then set up game and start game
-
-                    for(i = 0; i< server.getListOfClientConnections().size(); i++) {
-                        if(userName.equalsIgnoreCase(server.getListOfClientConnections().get(i).userName)) {
-                            userOneIndex = server.getListOfClientConnections().get(i).connectionID;
-                        }
-
-                        if(opponentName.equalsIgnoreCase(server.getListOfClientConnections().get(i).userName)) {
-                            userTwoIndex = server.getListOfClientConnections().get(i).connectionID;
-                        }
-                    }
-
-                    System.out.println("Creating game with players: " + userOneIndex + " and "+ userTwoIndex);
-                    server.createGame(userOneIndex, userTwoIndex);
-                }
-
-                else if(command.equalsIgnoreCase("choice")) {
-                    gameNumber = parser.next();
-                    int gameIndex = Integer.parseInt(gameNumber);
-                    String playerName = parser.next();
-                    String playerChoice = parser.next();
-                    int userIndex = -1;
-
-                    //get players index from username
-                    for(i = 0; i< server.getListOfClientConnections().size(); i++) {
-                        if (playerName.equalsIgnoreCase(server.getListOfClientConnections().get(i).userName)) {
-                            userIndex = server.getListOfClientConnections().get(i).connectionID;
-                        }
-                    }
-
-                    //command to send to game function
-                    server.getListofGames().get(gameIndex).sendChoiceToGame(userIndex, playerChoice);
-                }
-
-
-                else if(command.equalsIgnoreCase("quit")){
-                    String playerName = parser.next();
-                        for(i = 0; i< server.getListOfClientConnections().size(); i++) {
-                            if (playerName.equalsIgnoreCase(server.getListOfClientConnections().get(i).userName)) {
-                                //user disconnected
-                                server.getListOfClientConnections().get(i).score = -999;
-                            }
-                        }
-                        server.setTotalClients(false);
-                        break;
-                }
-                */
 
 
                 //--TODO RECEIVING CREATE_LOBBY COMMAND
+                if(command.equalsIgnoreCase("create_lobby")){
+
+                    //parse lobby name and create the lobby
+                    lobbyName = parser.next();
+                    Lobby new_lobby = new Lobby(lobbyName, "JOIN", server.getLobbyList().size());
+                    server.getLobbyList().add(new_lobby);
+
+                    System.out.println("Lobby with name: " + server.getLobbyList().get(server.getLobbyList().size()-1).getLobbyName() +
+                            " added to the client lobbyList");
+
+                    //Message all connected clients to create their new psuedo-lobby
+                    for(i = 0; i<server.getListOfClientConnections().size(); i++){
+                        server.getListOfClientConnections().get(i).getClientsServerConnection().msgClientToMakeLobby(lobbyName);
+                    }
+
+                }
 
                 //--TODO RECEIVING JOIN_LOBBY COMMAND
+                else if(command.equalsIgnoreCase("join")){
+                    userName = parser.next();
+                    lobbyName = parser.next();
+
+                    server.getLobbyList().get(getLobbyIndexFromName(lobbyName)).addUsers(userName);
+                    System.out.println(userName + " added to lobby " + lobbyName);
+
+                    //send update to all clients about who joined what lobby
+                    for(Client c : server.getListOfClientConnections())
+                    {
+                        c.getClientsServerConnection().msgClientToJoinPlayer(lobbyName, userName);
+                    }
+                }
 
                 //--TODO RECEIVING TYPED COMMAND
 
@@ -152,8 +126,14 @@ public class ServerConnection extends Thread {
 
 
     //--TODO - SEND MAKE LOBBY COMMAND TO CLIENT
+    private void msgClientToMakeLobby(String lobName){
+        messageClient("create_lobby " + lobName);
+    }
 
     //--TODO - SEND JOIN PLAYER TO LOBBY COMMAND TO CLIENT
+    public void msgClientToJoinPlayer(String lobbyname, String username){
+        messageClient("join " + username + " " + lobbyname);
+    }
 
     //--TODO - SEND GAME STARTED COMMAND TO CLIENT
 
@@ -164,6 +144,14 @@ public class ServerConnection extends Thread {
     //--TODO - SEND GAME NEW WORD TO CLIENT
 
 
-
+    //Function to get lobby index from name
+    public int getLobbyIndexFromName(String lobName){
+        for(Lobby l : server.getLobbyList()){
+            if(l.getLobbyName().equalsIgnoreCase(lobName)){
+                return l.lobbyIndex;
+            }
+        }
+        return -1; //if lobbyname not found
+    }
 
 }

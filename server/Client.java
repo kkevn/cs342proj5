@@ -64,7 +64,10 @@ public class Client {
     public void setOpponentList(ArrayList<Client> clientList) {
         opponentList = clientList;
         //opponentList.remove(connectionID);
+    }
 
+    public ServerConnection getClientsServerConnection(){
+        return connection;
     }
 
 }

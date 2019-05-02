@@ -11,16 +11,18 @@ public class Lobby {
     int player_count;
 
     //--TODO - ADD LOBBY INDEX, ADD VARIABLES FOR PLAYER INDEX
+    int lobbyIndex;
+
 
     //--TODO - ADD LOBBY FUNCTION THAT CAN UPDATE GAME GUI (MAYBE MULTIPLE FUNCTIONS?)
 
         
     /* initializes all data */
-    public Lobby(String name, String status, HashMap<String, Integer> clients) {
+    public Lobby(String name, String status, int index) {
         lobby_name = name;
         lobby_status = status;
-        connected_clients = clients;
-        player_count = connected_clients.size();
+        lobbyIndex = index;
+        player_count = 0;
     }
     
     /* updates the lobby name */
@@ -113,5 +115,6 @@ public class Lobby {
         
         System.out.println(result);
     }
-    
+
+    public String getLobbyName(){ return lobby_name; }
 }

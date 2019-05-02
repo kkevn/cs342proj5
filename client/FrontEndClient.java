@@ -606,7 +606,7 @@ public class FrontEndClient extends Application {
             // check if selected lobby is availble and connect if so
             if (selected_lobby_status.equals("JOIN")) {
                 
-                //client.joinLobby(selected_lobby); - TODO
+                client.joinLobby(selected_lobby);
                 
                 System.out.println("> Player [" + tf_username.getText() + "] joined [" + selected_lobby + "]");
 
@@ -614,7 +614,10 @@ public class FrontEndClient extends Application {
                 t_player.setText(username);
                 
                 // store the connected lobby - TODO
-                //connected_lobby = client.getLobby();
+                connected_lobby = client.getLobby();
+
+                //update lobby list
+                updateLobbyList();
 
                 // set to game scene
                 setCurrentScene(3);
@@ -643,8 +646,9 @@ public class FrontEndClient extends Application {
             System.out.println("> New lobby [" + new_lobby + "] created by [" + username + "]");
             
             // join created lobby and store it - TODO
-            //client.joinLobby(new_lobby);
-            //connected_lobby = client.getLobby();
+            client.joinLobby(new_lobby);
+            connected_lobby = client.getLobby();
+            updateLobbyList();
             
             // set to game scene
             setCurrentScene(3);
@@ -706,6 +710,8 @@ public class FrontEndClient extends Application {
                 break;
         }
 
+        updateLobbyList();
+
         // set scene title, prevent resizing of window, and show the scene
         mainStage.setTitle(title);
         mainStage.setResizable(false);
@@ -761,10 +767,10 @@ public class FrontEndClient extends Application {
         //ArrayList<Lobby> available_lobbies = client.getLobbyList();
         
         HashMap<String, Integer> test_clients = new HashMap<>();
-        test_clients.put("kevin", 0);
-        test_clients.put("john", 0);
-        test_clients.put("frankie", 0);
-        test_clients.put("alec", 0);
+        //test_clients.put("kevin", 0);
+        //test_clients.put("john", 0);
+        //test_clients.put("frankie", 0);
+        //test_clients.put("alec", 0);
         
         // update client list (on main JavaFX thread)
         Platform.runLater(new Runnable() {
@@ -775,14 +781,14 @@ public class FrontEndClient extends Application {
                 lv_lobbies.getItems().clear();
 
                 // for each lobby in data structure - TODO
-                /*for (Lobby l : available_lobbies) {
+                for (Lobby l : client.getLobbyList()) {
 
                     // add current lobby to the list view
                     addLobby(l);
-                }*/
+                }
                 
                 for (int i = 0; i < 6; i++) {
-                    addLobby(new Lobby("lobby_" + i, i < 3 ? "JOIN" : "FULL", test_clients));
+                   // addLobby(new Lobby("lobby_" + i, i < 3 ? "JOIN" : "FULL", i));
                 }
             }
         });

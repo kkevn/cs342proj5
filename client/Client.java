@@ -80,8 +80,9 @@ public class Client extends Thread{
         String serverMessage;
         Scanner parser;
         String command;
-        String lobbyName;
         String gameNumber;
+        String lobbyName;
+        String username;
         while(true) {
 
             try {
@@ -91,8 +92,37 @@ public class Client extends Thread{
                 command = parser.next();
 
                 //--TODO - RECEIVE COMMAND TO CREATE_LOBBY
+                if(command.equalsIgnoreCase("create_lobby")){
+
+                    //parse lobby name and create the lobby
+                    lobbyName = parser.next();
+                    Lobby new_lobby = new Lobby(lobbyName, "JOIN", lobbyList.size());
+                    lobbyList.add(new_lobby);
+                    System.out.println("Lobby with name: " + lobbyList.get(lobbyList.size()-1).getLobbyName() +
+                            " added to the client lobbyList");
+
+                    //update lobby screen
+                    gui.updateLobbyList();
+
+                }
 
                 //--TODO - RECEIVE COMMAND TO JOIN SOMEONE TO A LOBBY
+                else if(command.equalsIgnoreCase("join")){
+
+                    //parse lobby and username, and add the user to that lobby name
+                    username = parser.next();
+                    lobbyName = parser.next();
+                    lobbyList.get(getLobbyIndexFromName(lobbyName)).addUsers(username);
+
+
+                    //confirm user was added to lobby
+                    System.out.println(username + "joined lobby: " +
+                            lobbyList.get(getLobbyIndexFromName(lobbyName)).getLobbyName());
+
+                    //update lobby screen
+                    gui.updateLobbyList();
+
+                }
 
                 //--TODO - RECEIVE COMMAND TO START GAME
 
@@ -109,7 +139,7 @@ public class Client extends Thread{
                     // objectoutputstream because i think that can parse objects
                     // if using (2), lobbyName should not be a string, but lobby object
                     
-                    //LobbyList.add(lobbyName);
+                    //obbyList.add(lobbyName);
                     
                     System.out.println("user: " + lobbyName + " added");
                     gui.updateLobbyList();
@@ -155,6 +185,10 @@ public class Client extends Thread{
         String newWord;
         int parseCount = 0;
 
+        String command = "";
+        String lobbyName;
+        String username;
+
         while(true) {
 
             try {
@@ -167,11 +201,42 @@ public class Client extends Thread{
 
                 //parse the message
                 parser = new Scanner(serverMessage);
+                command = parser.next();
 
 
                 //--TODO - RECEIVE COMMAND TO CREATE_LOBBY
+                if(command.equalsIgnoreCase("create_lobby")){
+
+                    //parse lobby name and create the lobby
+                    lobbyName = parser.next();
+                    Lobby new_lobby = new Lobby(lobbyName, "JOIN", lobbyList.size());
+                    lobbyList.add(new_lobby);
+
+                    System.out.println("Lobby with name: " + lobbyList.get(lobbyList.size()-1).getLobbyName() +
+                            " added to the client lobbyList");
+
+                    //update lobby screen
+                    gui.updateLobbyList();
+
+                }
 
                 //--TODO - RECEIVE COMMAND TO JOIN SOMEONE TO A LOBBY
+                else if(command.equalsIgnoreCase("join")){
+
+                    //parse lobby and username, and add the user to that lobby name
+                    username = parser.next();
+                    lobbyName = parser.next();
+                    lobbyList.get(getLobbyIndexFromName(lobbyName)).addUsers(username);
+
+
+                    //confirm user was added to lobby
+                    System.out.println(username + "joined lobby: " +
+                            lobbyList.get(getLobbyIndexFromName(lobbyName)).getLobbyName());
+
+                    //update lobby screen
+                    gui.updateLobbyList();
+
+                }
 
                 //--TODO - RECEIVE COMMAND TO UPDATE ROUND WINNER -- to update
 
@@ -179,32 +244,10 @@ public class Client extends Thread{
 
 
 
-
-                //--TODO - DO WE NEED ANY OF THIS?
-                opponentPlayed = parser.next();
-                score = parser.next();
-                score2 = parser.next();
-                //result = parser.nextLine();
-                winner = parser.nextLine();
-                //winner.trim();
-                winner = winner.replaceAll("\\s+","");
-                System.out.println("'" + winner + "'");
-                System.out.println(opponentPlayed + " " + score + /*" " + result +*/ " " + winner);
-                
-                // game end reached (win, loss, or tie)
-                if (Integer.parseInt(winner) == 3 || Integer.parseInt(winner) == 4 || Integer.parseInt(winner) == 5) {
-                    gameOver = true;
-                }
-
-                //--update GUI with total score, opponent played, server message
-                //gui.setTotalpointsText(score, score2);
-                //gui.setOpponentplayedText(opponentPlayed);
-                //gui.setServerText(result);
-                //gui.updateGameInfo(Integer.parseInt(winner));
                 
                 // TODO get new word from server -- this should happen when the round ends
                 newWord = "some new word";
-                gui.updateGameInfo(newWord, Integer.parseInt(winner));
+                //gui.updateGameInfo(newWord, Integer.parseInt(winner));
                 
                 System.out.println("SERVER REPLY MESSAGE: " + serverMessage);
 
@@ -255,7 +298,7 @@ public class Client extends Thread{
 
         //output stream write out to server: <userName> <message>
         try {
-            outputStream.writeUTF(this.userName + " " + message);
+            outputStream.writeUTF(message);
             outputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -274,7 +317,7 @@ public class Client extends Thread{
         }
     }
     
-    // notify server that client wants to join a server
+    // notify server that client wants to join a lobby
     public void joinLobby(String lobby_name) {
 
         try {
@@ -289,7 +332,7 @@ public class Client extends Thread{
     public void setupLobby(String lobby_name) {
 
         try {
-            outputStream.writeUTF("create " + this.userName + " " + lobby_name);
+            outputStream.writeUTF("create_lobby " + lobby_name);
             outputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -331,9 +374,28 @@ public class Client extends Thread{
     //--TODO - SEND COMMAND THAT TELLS SERVER THAT THE CLIENT HAS FINISHED TYPING
 
     //--TODO - SEND COMMAND THAT TELLS SERVER TO CREATE LOBBY
+    //Gui function to create new lobby
+    public void GuiCreateLobby(String lobName){
+        sendMessage("create_lobby " + lobName);
+    }
 
     //--TODO - SEND COMMAND THAT TELLS SERVER TO JOIN A LOBBY
+    //Gui function to create new lobby
+    public void GuiJoinLobby(String lobName){
+        sendMessage("join " + this.userName + " " + lobName);
+    }
 
 
+
+    //Function to get lobby index from name
+    public int getLobbyIndexFromName(String lobName){
+        for(Lobby l : lobbyList){
+            if(l.getLobbyName().equals(lobName)){
+                return l.lobbyIndex;
+            }
+        }
+
+        return -1; //if lobbyname not found
+    }
 
 }
