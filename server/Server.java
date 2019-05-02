@@ -1,6 +1,3 @@
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -35,55 +32,47 @@ public class Server extends Thread {
             serverSocket = new ServerSocket(port);
             while (true){
 
-                //if(connectionCounter != 2) {
-                    System.out.println("connections: " + connectionCounter);
+                System.out.println("connections: " + connectionCounter);
 
-                    //waiting for client to connect
-                    clientSocket = serverSocket.accept();
-                    cID = connectionCounter;
+                //waiting for client to connect
+                clientSocket = serverSocket.accept();
+                cID = connectionCounter;
 
-                    //create instance of Server Connection for every thread
-                    ServerConnection connection = new ServerConnection(clientSocket, this);
+                //create instance of Server Connection for every thread
+                ServerConnection connection = new ServerConnection(clientSocket, this);
 
-                    //--create a Client record
-                    Client client = new Client(cID, connection);
+                //create a Client record
+                Client client = new Client(cID, connection);
 
-                    //add client to list of connections
-                    listOfClientConnections.add(client);
-                    setTotalClients(true);
+                //add client to list of connections
+                listOfClientConnections.add(client);
 
-                    //login player to server
-                    loginPlayer(client);
+                //used to increment the number of clients
+                setTotalClients(true);
 
-                    //update client with opponent list
-                    updateClientWithOppList(client);
+                //login player to server
+                loginPlayer(client);
 
-                    //update all clients with new client
-                    updateAllClientsWithNewClient(client);
+                //update client with opponent list
+                updateClientWithOppList(client);
+
+                //update all clients with new client
+                updateAllClientsWithNewClient(client);
 
 
+                //TODO -- Create function to update new user with all the lobbies and information
 
-                    //initiate connection logistics
-                    connection.start();
 
-//                    clientConnections.add(connection);
+                //initiate connection logistics
+                connection.start();
 
-                    //increase  connection counter
-                    connectionCounter++;
-                //}
-
+                //increase  connection counter
+                connectionCounter++;
 
             }
 
         }
         catch (IOException ex){
-           // try {
-                //clientSocket.close();
-
-           // }
-            //catch (IOException e){
-            //    e.printStackTrace();
-           // }
             ex.printStackTrace();
         }
     }
@@ -167,13 +156,7 @@ public class Server extends Thread {
 
     public frontEndServer getGUI(){return gui;}
 
-//    public ArrayList<ServerConnection> getClientConnections() {
-//        return clientConnections;
-//    }
-
-    public ArrayList<Client> getListOfClientConnections() {
-        return listOfClientConnections;
-    }
+    public ArrayList<Client> getListOfClientConnections() { return listOfClientConnections; }
 
     public boolean createConnectionRecord() {
         return false;
@@ -184,8 +167,8 @@ public class Server extends Thread {
     }
 
     public void createGame(int p1Index, int p2Index) {
-        Game newgame = new Game(p1Index, p2Index, gameCounter, listOfClientConnections);
-        games.add(newgame);
+        //Game newgame = new Game(p1Index, p2Index, gameCounter, listOfClientConnections);
+        //games.add(newgame);
         gameCounter++;
     }
 
