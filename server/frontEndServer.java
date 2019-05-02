@@ -10,10 +10,8 @@
  *  Creates the server's GUI using JavaFX components.
  ******************************************************************************/
 
-import java.io.Serializable;
 import java.util.Random;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -291,22 +289,26 @@ public class frontEndServer extends Application {
         // TODO
         // the below loop needs to be reworked for iterating through all
         // lobby objects known by the server
+
+        /*COMMENTED TO MAKE SERVER CODE RUN
         
         if (server.getListOfClientConnections().size() >= 1) {
             for (int i = 0; i < server.getListOfClientConnections().size(); i++) {
                 if (server.getListOfClientConnections().get(i).score != -999)
                     lv_lobbies.getItems().add(new Text(server.getListOfClientConnections().get(i).userName));
                 
-                    /* TODO
+                    //CHANGE TO BLOCK TODO
                     remove the above line and uncomment the next three lines. 
                 
                     String name = server.getListOfClientConnections().get(i).lobbyName;
                     String status = server.getListOfClientConnections().get(i).lobbyStatus;
                     
                     addLobby(new Lobby(name, status, server.getListOfClientConnections().get(i).clients));
-                    */
+                   //CHANGE TO END COMMENT BLOCK
             }
+
         }
+        */
     }
     
     /* apppend specified lobby object to list view */

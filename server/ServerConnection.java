@@ -1,8 +1,6 @@
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 
 public class ServerConnection extends Thread {
@@ -22,7 +20,8 @@ public class ServerConnection extends Thread {
             this.inputStream = new DataInputStream(clientSocket.getInputStream());
             //connected to client destination
             this.outputStream = new DataOutputStream(clientSocket.getOutputStream());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -45,6 +44,8 @@ public class ServerConnection extends Thread {
                 clientMessage = inputStream.readUTF();
                 parser = new Scanner(clientMessage);
                 command = parser.next();
+                /*COMMENTED TO RUN NEW CODE
+
                 if(command.equalsIgnoreCase("challenge")) {
                     int userOneIndex = -1;
                     int userTwoIndex = -1;
@@ -54,6 +55,7 @@ public class ServerConnection extends Thread {
                     //check if opponent is available
 
                     //if available then set up game and start game
+
                     for(i = 0; i< server.getListOfClientConnections().size(); i++) {
                         if(userName.equalsIgnoreCase(server.getListOfClientConnections().get(i).userName)) {
                             userOneIndex = server.getListOfClientConnections().get(i).connectionID;
@@ -63,6 +65,7 @@ public class ServerConnection extends Thread {
                             userTwoIndex = server.getListOfClientConnections().get(i).connectionID;
                         }
                     }
+
                     System.out.println("Creating game with players: " + userOneIndex + " and "+ userTwoIndex);
                     server.createGame(userOneIndex, userTwoIndex);
                 }
@@ -97,7 +100,19 @@ public class ServerConnection extends Thread {
                         server.setTotalClients(false);
                         break;
                 }
+                */
+
+
+                //--TODO RECEIVING CREATE_LOBBY COMMAND
+
+                //--TODO RECEIVING JOIN_LOBBY COMMAND
+
+                //--TODO RECEIVING TYPED COMMAND
+
+
+
             }
+
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -134,6 +149,20 @@ public class ServerConnection extends Thread {
     public DataOutputStream getOutputStream(){
         return outputStream;
     }
+
+
+    //--TODO - SEND MAKE LOBBY COMMAND TO CLIENT
+
+    //--TODO - SEND JOIN PLAYER TO LOBBY COMMAND TO CLIENT
+
+    //--TODO - SEND GAME STARTED COMMAND TO CLIENT
+
+    //--TODO - SEND GAME ENDED COMMAND TO CLIENT
+
+    //--TODO - SEND GAME GUI UPDATE POINTS COMMAND TO CLIENT
+
+    //--TODO - SEND GAME NEW WORD TO CLIENT
+
 
 
 

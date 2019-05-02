@@ -14,6 +14,9 @@ public class Client {
     String gameStatus;
     ArrayList<Client> opponentList = new ArrayList<>();
 
+    //TODO -- add lobby number, change messages to send to server connection
+
+
     public Client(int ID, ServerConnection connection) {
         this.connectionID = ID;
         this.userName = " ";

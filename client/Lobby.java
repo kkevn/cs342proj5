@@ -9,6 +9,11 @@ public class Lobby {
     String lobby_status;
     HashMap<String, Integer> connected_clients = new HashMap<>();
     int player_count;
+
+    //--TODO - ADD LOBBY INDEX, ADD VARIABLES FOR PLAYER INDEX
+
+    //--TODO - ADD LOBBY FUNCTION THAT CAN UPDATE GAME GUI (MAYBE MULTIPLE FUNCTIONS?)
+
         
     /* initializes all data */
     public Lobby(String name, String status, HashMap<String, Integer> clients) {

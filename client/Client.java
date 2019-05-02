@@ -56,6 +56,7 @@ public class Client extends Thread{
         }
         catch (IOException e) {
             e.printStackTrace();
+            System.out.println("FAILED TO CONNECT");
         }
     }
 
@@ -89,6 +90,12 @@ public class Client extends Thread{
                 parser = new Scanner(serverMessage);
                 command = parser.next();
 
+                //--TODO - RECEIVE COMMAND TO CREATE_LOBBY
+
+                //--TODO - RECEIVE COMMAND TO JOIN SOMEONE TO A LOBBY
+
+                //--TODO - RECEIVE COMMAND TO START GAME
+
 
                 if(command.equalsIgnoreCase("add")) {
                     //add to arraylist
@@ -102,11 +109,14 @@ public class Client extends Thread{
                     // objectoutputstream because i think that can parse objects
                     // if using (2), lobbyName should not be a string, but lobby object
                     
-                    //obbyList.add(lobbyName);
+                    //LobbyList.add(lobbyName);
                     
                     System.out.println("user: " + lobbyName + " added");
                     gui.updateLobbyList();
                 }
+
+
+                //--GAME STARTED, BREAK READY AND GO TO LISTEN
                 else if(command.equalsIgnoreCase("challenged")) {
                     lobbyName = parser.next();
                     gameNumber = parser.next();
@@ -119,9 +129,11 @@ public class Client extends Thread{
                     
                     break;
                 }
+
                 else if(command.equalsIgnoreCase("join")) {
                     // TODO figure out joining a lobby
                 }
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -155,6 +167,20 @@ public class Client extends Thread{
 
                 //parse the message
                 parser = new Scanner(serverMessage);
+
+
+                //--TODO - RECEIVE COMMAND TO CREATE_LOBBY
+
+                //--TODO - RECEIVE COMMAND TO JOIN SOMEONE TO A LOBBY
+
+                //--TODO - RECEIVE COMMAND TO UPDATE ROUND WINNER -- to update
+
+                //--TODO - RECEIVE COMMAND TO END GAME
+
+
+
+
+                //--TODO - DO WE NEED ANY OF THIS?
                 opponentPlayed = parser.next();
                 score = parser.next();
                 score2 = parser.next();
@@ -176,7 +202,7 @@ public class Client extends Thread{
                 //gui.setServerText(result);
                 //gui.updateGameInfo(Integer.parseInt(winner));
                 
-                // TODO get new word from server
+                // TODO get new word from server -- this should happen when the round ends
                 newWord = "some new word";
                 gui.updateGameInfo(newWord, Integer.parseInt(winner));
                 
@@ -300,4 +326,14 @@ public class Client extends Thread{
     public String getUserName() {return userName;}
 
     public String  getIpAddress() {return ipAddress;}
+
+
+    //--TODO - SEND COMMAND THAT TELLS SERVER THAT THE CLIENT HAS FINISHED TYPING
+
+    //--TODO - SEND COMMAND THAT TELLS SERVER TO CREATE LOBBY
+
+    //--TODO - SEND COMMAND THAT TELLS SERVER TO JOIN A LOBBY
+
+
+
 }

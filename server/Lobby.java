@@ -7,8 +7,14 @@ public class Lobby {
     // lobby data
     String lobby_name;
     String lobby_status;
-    HashMap<String, Integer> connected_clients = new HashMap<>();
+    HashMap<String, Integer> connected_clients = new HashMap<String, Integer>();
     int player_count;
+
+    //--TODO - ADD LOBBY INDEX, ADD VARIABLES FOR PLAYER INDEX
+
+    //--TODO - ADD LOBBY FUNCTION THAT CAN EXECUTE FROM SERVER AND SEND "TYPED" TO GAME
+
+    //--TODO - ADD LOBBY FUNCTION THAT CAN EXECUTE FROM GAME AND SEND POINT UPDATE TO THE 4 CLIENTS IN THE CURRENT GAME
         
     /* initializes all data */
     public Lobby(String name, String status, HashMap<String, Integer> clients) {
