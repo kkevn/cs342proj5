@@ -33,11 +33,18 @@ public class Game {
         roundWord = words.get(rand.nextInt(words.size()));
         clientsDone.clear();
 
-        //send the random word to each client
-        cc.get(p1Index).connection.messageClient("new_word " + roundWord + " " + 0);
-        cc.get(p2Index).connection.messageClient("new_word " + roundWord + " " + 0);
-        cc.get(p3Index).connection.messageClient("new_word " + roundWord + " " + 0);
-        cc.get(p4Index).connection.messageClient("new_word " + roundWord + " " + 0);
+        if(gameRound <= 10){
+            //send the random word to each client
+            cc.get(p1Index).connection.messageClient("new_word " + roundWord + " " + 0);
+            cc.get(p2Index).connection.messageClient("new_word " + roundWord + " " + 0);
+            cc.get(p3Index).connection.messageClient("new_word " + roundWord + " " + 0);
+            cc.get(p4Index).connection.messageClient("new_word " + roundWord + " " + 0);
+        }
+
+        else{
+            //get score and notify clients win/loss
+            determineWinner();
+        }
 
     }
 
@@ -67,12 +74,26 @@ public class Game {
         gameRound = 1;
         sendWord();
     }
-
+    //notify clients of the game winner
     public void setGameWinner(int index){
-        //notify clients of the game winner
-        //...
+        //this is the game's winner
+        cc.get(index).connection.messageClient("new_word " + roundWord + " " + 3);
 
-
+        //notify the clients that lost
+        for(int i = 0; i < cc.size(); i++){
+            if(cc.get(i).userName.equalsIgnoreCase(cc.get(p1Index).userName) && (p1Index != index)){
+                cc.get(p1Index).connection.messageClient("new_word " + roundWord + " " + 4);
+            }
+            if(cc.get(i).userName.equalsIgnoreCase(cc.get(p2Index).userName) && (p2Index != index)){
+                cc.get(p2Index).connection.messageClient("new_word " + roundWord + " " + 4);
+            }
+            if(cc.get(i).userName.equalsIgnoreCase(cc.get(p3Index).userName) && (p3Index != index)){
+                cc.get(p3Index).connection.messageClient("new_word " + roundWord + " " + 4);
+            }
+            if(cc.get(i).userName.equalsIgnoreCase(cc.get(p4Index).userName) && (p4Index != index)){
+                cc.get(p4Index).connection.messageClient("new_word " + roundWord + " " + 4);
+            }
+        }
 
         //reset the scores
         resetClientScores();
@@ -88,6 +109,9 @@ public class Game {
            cc.get(p2Index).connection.messageClient("winner " + cc.get(clientsDone.get(0)).userName + " " + lobbyName);
            cc.get(p3Index).connection.messageClient("winner " + cc.get(clientsDone.get(0)).userName + " " + lobbyName);
            cc.get(p4Index).connection.messageClient("winner " + cc.get(clientsDone.get(0)).userName + " " + lobbyName);
+
+           cc.get(clientsDone.get(0)).score += 1;
+           gameRound++;
 
            sendWord();
        }
@@ -108,7 +132,6 @@ public class Game {
         }
 
         if(cc.get(p4Index).score > score){
-            score = cc.get(p4Index).score;
             index = p4Index;
         }
 
