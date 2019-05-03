@@ -8,12 +8,12 @@ public class Game {
     private int p1Index, p2Index, p3Index, p4Index, gameRound;
     ArrayList<Client> cc;
     //int gameID;
-    private String roundWord;
+    private String roundWord, lobbyName;
     private ArrayList<String> words;
     private ArrayList<Integer> clientsDone = new ArrayList<>();
     Scanner scanner;
 
-    public Game(int p1, int p2, int p3, int p4, ArrayList<Client> cc) {
+    public Game(int p1, int p2, int p3, int p4, ArrayList<Client> cc, String lobName) {
 
         this.p1Index = p1;
         this.p2Index = p2;
@@ -21,6 +21,7 @@ public class Game {
         this.p4Index = p4;
         this.gameRound = 1;
         this.cc = cc;
+        this.lobbyName = lobName;
 
         setupGame();
 
@@ -30,12 +31,13 @@ public class Game {
         //send a random word from a list of strings
         Random rand = new Random();
         roundWord = words.get(rand.nextInt(words.size()));
+        clientsDone.clear();
 
         //send the random word to each client
-        cc.get(p1Index).connection.messageClient("new_word " + roundWord + " " + 0 + " ");
-        cc.get(p2Index).connection.messageClient("new_word " + roundWord + " " + 0 + " ");
-        cc.get(p3Index).connection.messageClient("new_word " + roundWord + " " + 0 + " ");
-        cc.get(p4Index).connection.messageClient("new_word " + roundWord + " " + 0 + " ");
+        cc.get(p1Index).connection.messageClient("new_word " + roundWord + " " + 0);
+        cc.get(p2Index).connection.messageClient("new_word " + roundWord + " " + 0);
+        cc.get(p3Index).connection.messageClient("new_word " + roundWord + " " + 0);
+        cc.get(p4Index).connection.messageClient("new_word " + roundWord + " " + 0);
 
     }
 
@@ -82,10 +84,10 @@ public class Game {
 
        //once all four players have typed the word inform the clients and update score
        if(clientsDone.size() == 4){
-           //cc.get(p1Index).connection.messageClient("winner " + clientsDone.get(0) + " " + lobbyName + " ");
-           //cc.get(p2Index).connection.messageClient("winner " + clientsDone.get(0) + " " + lobbyName + " ");
-           //cc.get(p3Index).connection.messageClient("winner " + clientsDone.get(0) + " " + lobbyName + " ");
-           //cc.get(p4Index).connection.messageClient("winner " + clientsDone.get(0) + " " + lobbyName + " ");
+           cc.get(p1Index).connection.messageClient("winner " + cc.get(clientsDone.get(0)).userName + " " + lobbyName);
+           cc.get(p2Index).connection.messageClient("winner " + cc.get(clientsDone.get(0)).userName + " " + lobbyName);
+           cc.get(p3Index).connection.messageClient("winner " + cc.get(clientsDone.get(0)).userName + " " + lobbyName);
+           cc.get(p4Index).connection.messageClient("winner " + cc.get(clientsDone.get(0)).userName + " " + lobbyName);
 
            sendWord();
        }
