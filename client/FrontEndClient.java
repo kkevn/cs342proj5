@@ -425,7 +425,7 @@ public class FrontEndClient extends Application {
         hb_rounds.setMargin(t_rounds, new Insets(24));
         
         // word label
-        word = randomWord();
+        word = "Waiting for clients...";
         t_word = new Text(word);
         t_word.setFill(Color.WHITE);
         t_word.setFont(round_font);
@@ -433,6 +433,7 @@ public class FrontEndClient extends Application {
         tf_word = new TextField();
         tf_word.setFont(tf_font);
         tf_word.setPromptText(word);
+        tf_word.setDisable(true);
         tf_word.setStyle("-fx-background-color: rgba(255, 255, 255, 0.5);"
                         + "-fx-prompt-text-fill: rgb(70, 70, 70);"
                         + "-fx-border-radius: 12;"
@@ -663,6 +664,7 @@ public class FrontEndClient extends Application {
 
         try {
             //client.setDone(); - TODO
+            client.GuiPlayerDoneTyping(this.client.getUserName());
 
             System.out.println("> Successfully typed [" + word + "]");
         } catch (Exception e) {
@@ -766,7 +768,7 @@ public class FrontEndClient extends Application {
         // get data structure containing all lobbies - TODO
         //ArrayList<Lobby> available_lobbies = client.getLobbyList();
         
-        HashMap<String, Integer> test_clients = new HashMap<>();
+        //HashMap<String, Integer> test_clients = new HashMap<>();
         //test_clients.put("kevin", 0);
         //test_clients.put("john", 0);
         //test_clients.put("frankie", 0);
@@ -802,15 +804,15 @@ public class FrontEndClient extends Application {
         connected_lobby = client.getLobby();
         
         // get first place's point value = TODO
-        // int first_place = connected_lobby.getFirstPlace();
+         //int first_place = connected_lobby.getFirstPlace();
         int first_place = 1;
         
-        HashMap<String, Integer> test_clients = new HashMap<>();
+        //HashMap<String, Integer> test_clients = new HashMap<>();
         //test_clients.put("kevin", 0);
         //test_clients.put("john", 0);
         //test_clients.put("frankie", 0);
         //test_clients.put("alec", 0);
-        test_clients.put(username, 1);
+        //test_clients.put(username, 1);
         
         // update score list (on main JavaFX thread)
         Platform.runLater(new Runnable() {
@@ -831,12 +833,12 @@ public class FrontEndClient extends Application {
                     addScore(new ScoreLabel(user, false, points), first_place);
                 }
                 
-                for (Map.Entry<String, Integer> entry : test_clients.entrySet()) {
+                /*for (Map.Entry<String, Integer> entry : test_clients.entrySet()) {
                     String user = entry.getKey();
                     int points = entry.getValue();
 
                     addScore(new ScoreLabel(user, false, points), first_place);
-                }
+                }*/
             }
         });
 
@@ -972,7 +974,7 @@ public class FrontEndClient extends Application {
     public void updateGameInfo(String newWord, int roundWinner) {
         
         // update word to type
-        word = randomWord();
+        word = newWord;
         t_word.setText(word);
         tf_word.setPromptText(word);
         
@@ -1118,8 +1120,8 @@ public class FrontEndClient extends Application {
             setClientDone();
             
             // TODO, remove updateGameInfo below and uncomment setDisable
-            updateGameInfo(randomWord(), 0);
-            //tf_word.setDisable(true);
+            //updateGameInfo(randomWord(), 0);
+            tf_word.setDisable(true);
         }
         
         // input is correct so far
