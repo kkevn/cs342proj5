@@ -91,7 +91,7 @@ public class Client extends Thread{
                 parser = new Scanner(serverMessage);
                 command = parser.next();
 
-                //--TODO - RECEIVE COMMAND TO CREATE_LOBBY
+                //--TODO - RECEIVE COMMAND TO CREATE_LOBBY (DONE)
                 if(command.equalsIgnoreCase("create_lobby")){
 
                     //parse lobby name and create the lobby
@@ -106,28 +106,33 @@ public class Client extends Thread{
 
                 }
 
-                //--TODO - RECEIVE COMMAND TO JOIN SOMEONE TO A LOBBY
+                //--TODO - RECEIVE COMMAND TO JOIN SOMEONE TO A LOBBY (DONE)
                 else if(command.equalsIgnoreCase("join")){
 
                     //parse lobby and username, and add the user to that lobby name
                     username = parser.next();
                     lobbyName = parser.next();
-                    lobbyList.get(getLobbyIndexFromName(lobbyName)).addUsers(username);
+                    lobbyList.get(getLobbyIndexFromLobbyName(lobbyName)).addUsers(username);
 
 
                     //confirm user was added to lobby
                     System.out.println(username + "joined lobby: " +
-                            lobbyList.get(getLobbyIndexFromName(lobbyName)).getLobbyName());
+                            lobbyList.get(getLobbyIndexFromLobbyName(lobbyName)).getLobbyName());
 
                     //update lobby screen
                     gui.updateLobbyList();
 
                 }
 
-                //--TODO - RECEIVE COMMAND TO START GAME
+                //--TODO - RECEIVE COMMAND TO START GAME (DONE)
+                //--GAME STARTED, BREAK READY AND GO TO LISTEN
+                else if(command.equalsIgnoreCase("start_game")) {
+
+                    break;
+                }
 
 
-                if(command.equalsIgnoreCase("add")) {
+                else if(command.equalsIgnoreCase("add")) {
                     //add to arraylist
                     lobbyName = parser.next();
                     
@@ -139,30 +144,13 @@ public class Client extends Thread{
                     // objectoutputstream because i think that can parse objects
                     // if using (2), lobbyName should not be a string, but lobby object
                     
-                    //obbyList.add(lobbyName);
+                    //lobbyList.add(lobbyName);
                     
                     System.out.println("user: " + lobbyName + " added");
                     gui.updateLobbyList();
                 }
 
 
-                //--GAME STARTED, BREAK READY AND GO TO LISTEN
-                else if(command.equalsIgnoreCase("challenged")) {
-                    lobbyName = parser.next();
-                    gameNumber = parser.next();
-                    this.gameID = Integer.parseInt(gameNumber);
-                    gameOver = false;
-                    System.out.println("user: " + lobbyName + " has challenged you");
-                    //--update GUI with connected message
-                    gui.setServerText(command);
-                    //gui.setConnectedTo(userName);
-                    
-                    break;
-                }
-
-                else if(command.equalsIgnoreCase("join")) {
-                    // TODO figure out joining a lobby
-                }
 
 
             } catch (IOException e) {
@@ -189,11 +177,17 @@ public class Client extends Thread{
         String lobbyName;
         String username;
 
+        //TODO - DON'T LET CLIENTS START TYPING IN GUI UNTIL GAME STARTS (IN THIS LISTEN() METHOD)
+
+
+        //When game starts update score list
+        //TODO - THIS SHOULD WORK? USED TO UPDATE SCORE LIST WITH LOBBY CLIENTS NAMES
+        gui.updateScoreList();
+
         while(true) {
 
             try {
-//                //break out of loop with quit
-//                if(userinput.equalsIgnoreCase("quit")){break;}
+//
 
                 //now receive data from server
                 serverMessage = inputStream.readUTF();
@@ -204,7 +198,7 @@ public class Client extends Thread{
                 command = parser.next();
 
 
-                //--TODO - RECEIVE COMMAND TO CREATE_LOBBY
+                //--TODO - RECEIVE COMMAND TO CREATE_LOBBY (DONE)
                 if(command.equalsIgnoreCase("create_lobby")){
 
                     //parse lobby name and create the lobby
@@ -220,34 +214,67 @@ public class Client extends Thread{
 
                 }
 
-                //--TODO - RECEIVE COMMAND TO JOIN SOMEONE TO A LOBBY
+                //--TODO - RECEIVE COMMAND TO JOIN SOMEONE TO A LOBBY (DONE)
                 else if(command.equalsIgnoreCase("join")){
 
                     //parse lobby and username, and add the user to that lobby name
                     username = parser.next();
                     lobbyName = parser.next();
-                    lobbyList.get(getLobbyIndexFromName(lobbyName)).addUsers(username);
+                    lobbyList.get(getLobbyIndexFromLobbyName(lobbyName)).addUsers(username);
 
 
                     //confirm user was added to lobby
                     System.out.println(username + "joined lobby: " +
-                            lobbyList.get(getLobbyIndexFromName(lobbyName)).getLobbyName());
+                            lobbyList.get(getLobbyIndexFromLobbyName(lobbyName)).getLobbyName());
 
                     //update lobby screen
                     gui.updateLobbyList();
 
                 }
 
-                //--TODO - RECEIVE COMMAND TO UPDATE ROUND WINNER -- to update
+                //--TODO - RECEIVE COMMAND TO UPDATE ROUND WINNER -- to update (DONE)
+                else if(command.equalsIgnoreCase("winner")){
 
-                //--TODO - RECEIVE COMMAND TO END GAME
+                    //parse username and update gui scores
+                    String winnerName = parser.next();
+                    String clientsLobbyName = parser.next();
+
+                    //update lobby with winner score
+                    int clientsLobbyIndex = getLobbyIndexFromLobbyName(clientsLobbyName);
+                    lobbyList.get(clientsLobbyIndex).updateWinnerScore(winnerName);
+
+
+                    //update scores (called when new word)
+                    //gui.updateScoreList();
+
+                }
+
+                //--TODO - RECEIVE COMMAND TO UPDATE NEW WORD (DONE)
+                //--TODO - NEW_WORD COMMAND SHOULD ALSO SEND GAME STATUS
+                else if(command.equalsIgnoreCase("new_word")){
+
+                    //parse username and update gui scores
+                    newWord = parser.next();
+                    String roundResult = parser.next();
+                    int roundResultInt = Integer.parseInt(roundResult);
+
+                    //update word label
+                    //zero if game is still ongoing
+                    //--TODO - RECEIVE STATUS IN MESSAGE TO END GAME OR CONTINUE
+                    gui.updateGameInfo(newWord, roundResultInt);
+
+                    //if the client wins or loses then return to the ready state for the next game
+                    if(roundResultInt == 3 || roundResultInt == 4){
+                        resetClientGame();
+                    }
+
+                }
 
 
 
-                
-                // TODO get new word from server -- this should happen when the round ends
-                newWord = "some new word";
-                //gui.updateGameInfo(newWord, Integer.parseInt(winner));
+
+
+
                 
                 System.out.println("SERVER REPLY MESSAGE: " + serverMessage);
 
@@ -361,6 +388,7 @@ public class Client extends Thread{
     public void resetClientGame(){
         gameOver = false;
         gui.score = 0; gui.word = ""; gui.rounds = 1; gui.status = -1;
+        //TODO - RETURN CLIENT TO LOBBY SCREEN
         ready();
     }
 
@@ -371,15 +399,18 @@ public class Client extends Thread{
     public String  getIpAddress() {return ipAddress;}
 
 
-    //--TODO - SEND COMMAND THAT TELLS SERVER THAT THE CLIENT HAS FINISHED TYPING
 
-    //--TODO - SEND COMMAND THAT TELLS SERVER TO CREATE LOBBY
+    //Gui function to tell server that player is done typing
+    //--TODO - EXECUTE THIS FUNCTION IN GUI WHEN PLAYER IS DONE TYPING (KEVIN)
+    public void GuiPlayerDoneTyping(String userName){
+        sendMessage("done_typing " + this.userName);
+    }
+
     //Gui function to create new lobby
     public void GuiCreateLobby(String lobName){
         sendMessage("create_lobby " + lobName);
     }
 
-    //--TODO - SEND COMMAND THAT TELLS SERVER TO JOIN A LOBBY
     //Gui function to create new lobby
     public void GuiJoinLobby(String lobName){
         sendMessage("join " + this.userName + " " + lobName);
@@ -388,7 +419,7 @@ public class Client extends Thread{
 
 
     //Function to get lobby index from name
-    public int getLobbyIndexFromName(String lobName){
+    public int getLobbyIndexFromLobbyName(String lobName){
         for(Lobby l : lobbyList){
             if(l.getLobbyName().equals(lobName)){
                 return l.lobbyIndex;
@@ -397,5 +428,7 @@ public class Client extends Thread{
 
         return -1; //if lobbyname not found
     }
+
+
 
 }

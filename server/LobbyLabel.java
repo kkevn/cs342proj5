@@ -72,5 +72,9 @@ public class LobbyLabel {
         
         return t_arr;
     }
+
+    public void updateLobbyToFull(Lobby l){
+        t_status.setFill(l.lobby_status.equals("FULL") ? c_status1 : c_status2);
+    }
     
 }

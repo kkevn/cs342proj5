@@ -799,17 +799,17 @@ public class FrontEndClient extends Application {
     public void updateScoreList() {
 
         // get current lobby data - TODO
-        // connected_lobby = client.getLobby();
+        connected_lobby = client.getLobby();
         
         // get first place's point value = TODO
-        //int first_place = connected_lobby.getFirstPlace();
+        // int first_place = connected_lobby.getFirstPlace();
         int first_place = 1;
         
         HashMap<String, Integer> test_clients = new HashMap<>();
-        test_clients.put("kevin", 0);
-        test_clients.put("john", 0);
-        test_clients.put("frankie", 0);
-        test_clients.put("alec", 0);
+        //test_clients.put("kevin", 0);
+        //test_clients.put("john", 0);
+        //test_clients.put("frankie", 0);
+        //test_clients.put("alec", 0);
         test_clients.put(username, 1);
         
         // update score list (on main JavaFX thread)
@@ -822,14 +822,14 @@ public class FrontEndClient extends Application {
                 lv_scores.setStyle("-fx-control-inner-background: rgba(200, 200, 200);"
                     + "-fx-control-inner-background-alt: derive(-fx-control-inner-background, 25%);");
                 
-                // for each player in lobby - TODO
-                /*for (Map.Entry<String, Integer> entry : connected_lobby.getClients().entrySet()) {
+                // for each player in lobby - TODO -- hopefully this updates the scores (Alec and Frankie)
+                for (Map.Entry<String, Integer> entry : connected_lobby.getClients().entrySet()) {
                     String user = entry.getKey();
                     int points = entry.getValue();
                     
                     // add to score list
-                    addScore(new ScoreLabel(user, false, points));
-                }*/
+                    addScore(new ScoreLabel(user, false, points), first_place);
+                }
                 
                 for (Map.Entry<String, Integer> entry : test_clients.entrySet()) {
                     String user = entry.getKey();

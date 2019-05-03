@@ -10,11 +10,18 @@ public class Lobby {
     HashMap<String, Integer> connected_clients = new HashMap<>();
     int player_count;
 
-    //--TODO - ADD LOBBY INDEX, ADD VARIABLES FOR PLAYER INDEX
     int lobbyIndex;
 
 
-    //--TODO - ADD LOBBY FUNCTION THAT CAN UPDATE GAME GUI (MAYBE MULTIPLE FUNCTIONS?)
+    //--TODO - ADD LOBBY FUNCTION THAT CAN UPDATE GAME GUI
+    public void updateWinnerScore(String winnerName){
+
+        //get winners current score and increment it by 1
+        int winnersNewScore = connected_clients.get(winnerName) + 1;
+        connected_clients.put(winnerName, winnersNewScore);
+        System.out.println(winnerName + "'s new score is " + connected_clients.get(winnerName));
+
+    }
 
         
     /* initializes all data */
@@ -79,6 +86,10 @@ public class Lobby {
             connected_clients.put(s, 0);
         }
         player_count = connected_clients.size();
+
+        if(player_count == 4){
+            setFull(true);
+        }
     }
     
     /* remove the specified client(s) by username from the lobby */
@@ -87,6 +98,7 @@ public class Lobby {
             connected_clients.remove(s);
         }
         player_count = connected_clients.size();
+
     }
     
     /* returns the lobby size */
@@ -117,4 +129,18 @@ public class Lobby {
     }
 
     public String getLobbyName(){ return lobby_name; }
+
+    //returns a list of usernames in the lobby
+    public ArrayList<String> getLobbyUserNames(){
+        ArrayList<String> usernames = new ArrayList<>();
+
+        for (Map.Entry<String, Integer> entry : connected_clients.entrySet()) {
+            String user = entry.getKey();
+
+            usernames.add(user);
+        }
+
+        return usernames;
+    }
+
 }

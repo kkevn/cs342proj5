@@ -53,7 +53,7 @@ public class ServerConnection extends Thread {
 
                     //parse lobby name and create the lobby
                     lobbyName = parser.next();
-                    Lobby new_lobby = new Lobby(lobbyName, "JOIN", server.getLobbyList().size());
+                    Lobby new_lobby = new Lobby(lobbyName, "JOIN", server.getLobbyList().size(), server.getListOfClientConnections());
                     server.getLobbyList().add(new_lobby);
 
                     System.out.println("Lobby with name: " + server.getLobbyList().get(server.getLobbyList().size()-1).getLobbyName() +
@@ -71,7 +71,7 @@ public class ServerConnection extends Thread {
                     userName = parser.next();
                     lobbyName = parser.next();
 
-                    server.getLobbyList().get(getLobbyIndexFromName(lobbyName)).addUsers(userName);
+                    server.getLobbyList().get(getLobbyIndexFromLobbyName(lobbyName)).addUsers(userName);
                     System.out.println(userName + " added to lobby " + lobbyName);
 
                     //send update to all clients about who joined what lobby
@@ -79,9 +79,27 @@ public class ServerConnection extends Thread {
                     {
                         c.getClientsServerConnection().msgClientToJoinPlayer(lobbyName, userName);
                     }
+
+                    //update what lobby this user is in
+                    int userIndex = server.getClientIndexFromUsername(userName);
+                    server.getListOfClientConnections().get(userIndex).setLobbyName(lobbyName);
+
                 }
 
                 //--TODO RECEIVING TYPED COMMAND
+                else if(command.equalsIgnoreCase("done_typing")){
+                    userName = parser.next();
+
+                    //find what lobby this user is in
+                    int userIndex = server.getClientIndexFromUsername(userName);
+                    String userLobbyName = server.getListOfClientConnections().get(userIndex).getLobbyName();
+                    int userLobbyIndex = getLobbyIndexFromLobbyName(userLobbyName);
+
+                    //sender user index to lobby
+                    server.getLobbyList().get(userIndex).sendUserIndexToGame(userIndex);
+
+
+                }
 
 
 
@@ -145,7 +163,7 @@ public class ServerConnection extends Thread {
 
 
     //Function to get lobby index from name
-    public int getLobbyIndexFromName(String lobName){
+    public int getLobbyIndexFromLobbyName(String lobName){
         for(Lobby l : server.getLobbyList()){
             if(l.getLobbyName().equalsIgnoreCase(lobName)){
                 return l.lobbyIndex;
