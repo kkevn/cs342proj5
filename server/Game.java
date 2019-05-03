@@ -10,6 +10,7 @@ public class Game {
     //int gameID;
     private String roundWord;
     private ArrayList<String> words;
+    private ArrayList<Integer> clientsDone = new ArrayList<>();
     Scanner scanner;
 
     public Game(int p1, int p2, int p3, int p4, ArrayList<Client> cc) {
@@ -73,6 +74,19 @@ public class Game {
 
         //reset the scores
         resetClientScores();
+    }
+    
+    //Called when a player successfully types the round word
+    public void wordTyped(int index){
+       clientsDone.add(index);
+
+       //once all four players have typed the word inform the clients and update score
+       if(clientsDone.size() == 4){
+           cc.get(p1Index).connection.messageClient("winner " + clientsDone.get(0));
+           cc.get(p2Index).connection.messageClient("winner " + clientsDone.get(0));
+           cc.get(p3Index).connection.messageClient("winner " + clientsDone.get(0));
+           cc.get(p4Index).connection.messageClient("winner " + clientsDone.get(0));
+       }
     }
 
     public void determineWinner(){
