@@ -62,7 +62,7 @@ public class FrontEndClient extends Application {
     private int default_port = 5555;
     private String default_ip = "127.0.0.1";
     private String username = "";
-    public int score = 0, rounds = 1, status = -1;
+    public int score = 0, rounds = 0, status = -1;
     public String word = "";
     ArrayList<String> lobby_players;
     private Lobby connected_lobby;
@@ -425,7 +425,7 @@ public class FrontEndClient extends Application {
         hb_rounds.setMargin(t_rounds, new Insets(24));
         
         // word label
-        word = "Waiting for clients...";
+        word = "Waiting...";
         t_word = new Text(word);
         t_word.setFill(Color.WHITE);
         t_word.setFont(round_font);
@@ -1088,7 +1088,7 @@ public class FrontEndClient extends Application {
         tf_word.setPromptText(word);
         
         // reset round info
-        rounds = 1;
+        rounds = 0;
         t_rounds.setText("Round:" + rounds);
 
         // reset score info
