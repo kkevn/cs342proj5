@@ -102,6 +102,7 @@ public class Client extends Thread{
                             " added to the client lobbyList");
 
                     //update lobby screen
+                    this.connected_lobby = new_lobby;
                     gui.updateLobbyList();
 
                 }
@@ -120,6 +121,7 @@ public class Client extends Thread{
                             lobbyList.get(getLobbyIndexFromLobbyName(lobbyName)).getLobbyName());
 
                     //update lobby screen
+                    this.connected_lobby = lobbyList.get(getLobbyIndexFromLobbyName(lobbyName));
                     gui.updateLobbyList();
 
                 }
