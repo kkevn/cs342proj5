@@ -12,6 +12,8 @@ public class Game {
     private ArrayList<String> words;
     private ArrayList<Integer> clientsDone = new ArrayList<>();
     Scanner scanner;
+    
+    final int WINNING_SCORE = 4;
 
     public Game(int p1, int p2, int p3, int p4, ArrayList<Client> cc, String lobName) {
 
@@ -33,7 +35,7 @@ public class Game {
         roundWord = words.get(rand.nextInt(words.size()));
         clientsDone.clear();
 
-        if(gameRound <= 10){
+        if(gameRound <= WINNING_SCORE){
             //send the random word to each client
             cc.get(p1Index).connection.messageClient("new_word " + roundWord + " " + 0);
             cc.get(p2Index).connection.messageClient("new_word " + roundWord + " " + 0);

@@ -12,6 +12,7 @@
 
 import java.util.Random;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -22,10 +23,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -64,7 +67,7 @@ public class frontEndServer extends Application {
     private ListView lv_lobbies;
     private Button b_update;
     private HBox hb_title;
-    private VBox vb_search;
+    private VBox vb_list, vb_search;
 
     /* creates the scene for the setup screen */
     private Parent createSetupScene() {
@@ -112,19 +115,19 @@ public class frontEndServer extends Application {
     private void createViewScene() {
 
         // text label
-        t_lobbies = new Text("Online Lobbies:\t(" + lobby_count + ")");
-        t_lobbies.setFill(Color.WHITE);
+        t_lobbies = new Text("Clients:    (" + 0 + ")  |  Lobbies:    (" + 0 + ")\n\nLobby Name | Status | Player Count");
+        t_lobbies.setFill(Color.GHOSTWHITE);
         t_lobbies.setFont(tf_font);
         hb_title = new HBox();
         hb_title.getChildren().add(t_lobbies);
-        hb_title.setAlignment(Pos.BASELINE_RIGHT);
+        hb_title.setAlignment(Pos.CENTER);
 
         // list view for clients
         lv_lobbies = new ListView();
         lv_lobbies.getItems().add(new Text("test"));
         lv_lobbies.setStyle("-fx-control-inner-background: rgba(200, 200, 200);"
                 + "-fx-control-inner-background-alt: derive(-fx-control-inner-background, 25%);");
-
+        
         // connect button
         b_update = new Button("Update Lobby List");
         b_update.setFont(font);
@@ -137,14 +140,20 @@ public class frontEndServer extends Application {
         b_update.setOnMouseExited(e -> resetButtonStyle(b_update));
         b_update.setOnMousePressed(e -> setButtonPressedStyle(b_update));
         b_update.setOnAction(e -> updateLobbyList());
-
+        
+        // layout for lobby list
+        vb_list = new VBox();
+        vb_list.getChildren().addAll(hb_title, lv_lobbies);
+        vb_list.setBackground(new Background(new BackgroundFill(Color.rgb(50, 50, 50, 0.75), new CornerRadii(12), new Insets(-8))));
+        vb_list.setMargin(t_lobbies, new Insets(10, 0, 16, 0));
+        vb_list.setMargin(lv_lobbies, new Insets(0, 0, 16, 0));
+        vb_list.setMinWidth(550);
+        
         // layout for connect screen
         vb_search = new VBox();
-        vb_search.getChildren().addAll(hb_title, lv_lobbies, b_update);
+        vb_search.getChildren().addAll(vb_list, b_update);
         vb_search.setAlignment(Pos.CENTER);
         vb_search.setPadding(new Insets(16, 32, 16, 32));
-        vb_search.setMargin(t_lobbies, new Insets(10, 0, 16, 0));
-        vb_search.setMargin(lv_lobbies, new Insets(0, 0, 16, 0));
         vb_search.setMargin(b_update, new Insets(16, 0, 0, 0));
         vb_search.setBackground(new Background(bi_wallpaper));
 
@@ -280,8 +289,24 @@ public class frontEndServer extends Application {
         lobby_count = 0;
         
         // TODO - erase if getTotalLobbies is made
-        t_lobbies.setText("Online Lobbies:\t(" + server.getTotalClients() + ")");
+        t_lobbies.setText("Clients:    (" + server.getTotalClients() + ")  |  Lobbies:    (" + server.getLobbyList().size() + ")\n\nLobby Name | Status | Player Count");
         
+        // update client list (on main JavaFX thread)
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+
+                // clear the list before populating it
+                lv_lobbies.getItems().clear();
+
+                // for each lobby in data structure - TODO
+                for (Lobby l : server.getLobbyList()) {
+
+                    // add current lobby to the list view
+                    addLobby(l);
+                }
+            }
+        });
         // need getTotalLobbies function - TODO
         //t_lobbies.setText("Online Lobbies:\t(" + server.getTotalLobbies() + ")");
         

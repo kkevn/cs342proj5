@@ -96,7 +96,7 @@ public class ServerConnection extends Thread {
                     int userLobbyIndex = getLobbyIndexFromLobbyName(userLobbyName);
 
                     //sender user index to lobby
-                    server.getLobbyList().get(userIndex).sendUserIndexToGame(userIndex);
+                    server.getLobbyList().get(userLobbyIndex).sendUserIndexToGame(userIndex);
 
 
                 }

@@ -150,7 +150,7 @@ public class Lobby {
     }
 
     private void createGame(){
-        lobbyGame = new Game(p1, p2, p3, p4, listOfClientConnections);
+        lobbyGame = new Game(p1, p2, p3, p4, listOfClientConnections, lobby_name);
     }
 
     //Function to get clients ID index given a username
