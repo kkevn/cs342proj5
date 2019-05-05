@@ -13,7 +13,7 @@ public class Game {
     private ArrayList<Integer> clientsDone = new ArrayList<>();
     Scanner scanner;
     
-    final int WINNING_SCORE = 4;
+    final int WINNING_SCORE = 5;
 
     public Game(int p1, int p2, int p3, int p4, ArrayList<Client> cc, String lobName) {
 
