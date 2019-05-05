@@ -11,7 +11,6 @@
  ******************************************************************************/
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import javafx.animation.KeyFrame;
@@ -24,6 +23,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -53,7 +53,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 public class FrontEndClient extends Application {
@@ -466,9 +469,17 @@ public class FrontEndClient extends Application {
         
         // list view for scores
         lv_scores = new ListView<FlowPane>();
-        lv_scores.setStyle("-fx-control-inner-background: rgba(200, 200, 200);"
-                + "-fx-control-inner-background-alt: derive(-fx-control-inner-background, 25%);");
+        //lv_scores.setStyle("-fx-control-inner-background: rgba(200, 200, 200);"
+        //        + "-fx-control-inner-background-alt: derive(-fx-control-inner-background, 25%);");
+        lv_scores.setStyle(".list-cell {" +
+                            "-fx-background-color: transparent;" +
+                            "}" +
+                           ".list-view {" +
+                            "-fx-background-color: transparent;" +
+                            "}");
         lv_scores.setMinHeight(440);
+        lv_scores.setMouseTransparent(true);
+        //lv_scores.setFocusTraversable(false);
         
         // layout for score list
         vb_scores = new VBox();
@@ -508,7 +519,7 @@ public class FrontEndClient extends Application {
         tf_font = Font.font("Lucida Console", FontPosture.REGULAR, 24);
         round_font = Font.font("Showcard Gothic", FontPosture.REGULAR, 48);
 
-        // load all three scenes and jump to connect scene
+        // load all four scenes and jump to connect scene
         s_connect = new Scene(createConnectScene());
         createSearchScene();
         createNewLobbyScene();
@@ -537,7 +548,7 @@ public class FrontEndClient extends Application {
         }
     }
 
-    /* prints to console messages received from server */
+    /* prints to console the messages received from server */
     public void setServerText(String message) {
         System.out.println("Server Sent:\n" + message);
     }
@@ -611,7 +622,7 @@ public class FrontEndClient extends Application {
                 
                 System.out.println("> Player [" + tf_username.getText() + "] joined [" + selected_lobby + "]");
 
-                // updates username and opponent's name to UI of game screen - TODO
+                // updates username to UI of game screen - TODO
                 t_player.setText(username);
                 
                 // store the connected lobby - TODO
@@ -653,6 +664,7 @@ public class FrontEndClient extends Application {
             
             // set to game scene
             setCurrentScene(3);
+            t_player.setText(username);
             
         } catch (Exception e) {
             System.out.println("> Failed creating a new lobby");
@@ -743,7 +755,7 @@ public class FrontEndClient extends Application {
     }
     
     /* apppend specified scorelabel object to list view */
-    public void addScore(ScoreLabel sl, int first) {
+    public void addScore(ScoreLabel sl, int[] top_scores) {
         
         // store score into a label-able version
         Text[] t_arr = sl.getAsTextArray();
@@ -754,8 +766,20 @@ public class FrontEndClient extends Application {
                                 new Text("\t"), t_arr[2]);
         
         // mark as gold if in first
-        if (sl.getPoints() == first) {
+        if (sl.getPoints() == top_scores[0]) {
             fp.setStyle("-fx-background-color: linear-gradient(to right, gold, white);");
+        } 
+        // mark as silver if in second
+        else if (sl.getPoints() == top_scores[1]) {
+            fp.setStyle("-fx-background-color: linear-gradient(to right, silver, white);");
+        }
+        // mark as brown/bronze if in third
+        else if (sl.getPoints() == top_scores[2]) {
+            fp.setStyle("-fx-background-color: linear-gradient(to right, #a05d00, white);");
+        }
+        // otherwise mark as lightblue
+        else {
+            fp.setStyle("-fx-background-color: linear-gradient(to right, lightblue, white);");
         }
         
         // add pane region to cell in list view
@@ -764,15 +788,6 @@ public class FrontEndClient extends Application {
     
     /* updates the list view with all available lobbies */
     public void updateLobbyList() {
-
-        // get data structure containing all lobbies - TODO
-        //ArrayList<Lobby> available_lobbies = client.getLobbyList();
-        
-        //HashMap<String, Integer> test_clients = new HashMap<>();
-        //test_clients.put("kevin", 0);
-        //test_clients.put("john", 0);
-        //test_clients.put("frankie", 0);
-        //test_clients.put("alec", 0);
         
         // update client list (on main JavaFX thread)
         Platform.runLater(new Runnable() {
@@ -788,13 +803,8 @@ public class FrontEndClient extends Application {
                     // add current lobby to the list view
                     addLobby(l);
                 }
-                
-                for (int i = 0; i < 6; i++) {
-                   // addLobby(new Lobby("lobby_" + i, i < 3 ? "JOIN" : "FULL", i));
-                }
             }
         });
-
     }
     
     /* updates the list view with all updated scores */
@@ -803,17 +813,6 @@ public class FrontEndClient extends Application {
         // get current lobby data - TODO
         connected_lobby = client.getLobby();
         
-        // get first place's point value = TODO
-         //int first_place = connected_lobby.getFirstPlace();
-        int first_place = 1;
-        
-        //HashMap<String, Integer> test_clients = new HashMap<>();
-        //test_clients.put("kevin", 0);
-        //test_clients.put("john", 0);
-        //test_clients.put("frankie", 0);
-        //test_clients.put("alec", 0);
-        //test_clients.put(username, 1);
-        
         // update score list (on main JavaFX thread)
         Platform.runLater(new Runnable() {
             @Override
@@ -821,8 +820,12 @@ public class FrontEndClient extends Application {
 
                 // reset the list before populating it
                 lv_scores.getItems().clear();
-                lv_scores.setStyle("-fx-control-inner-background: rgba(200, 200, 200);"
-                    + "-fx-control-inner-background-alt: derive(-fx-control-inner-background, 25%);");
+                lv_scores.setStyle(".list-cell {" +
+                                    "-fx-background-color: transparent;" +
+                                    "}" +
+                                   ".list-view {" +
+                                    "-fx-background-color: transparent;" +
+                                    "}");
                 
                 // for each player in lobby - TODO -- hopefully this updates the scores (Alec and Frankie)
                 for (Map.Entry<String, Integer> entry : connected_lobby.getClients().entrySet()) {
@@ -830,15 +833,9 @@ public class FrontEndClient extends Application {
                     int points = entry.getValue();
                     
                     // add to score list
-                    addScore(new ScoreLabel(user, false, points), first_place);
+                    addScore(new ScoreLabel(user, false, points), connected_lobby.getTopScores());
                 }
-                
-                /*for (Map.Entry<String, Integer> entry : test_clients.entrySet()) {
-                    String user = entry.getKey();
-                    int points = entry.getValue();
 
-                    addScore(new ScoreLabel(user, false, points), first_place);
-                }*/
             }
         });
 
@@ -982,7 +979,6 @@ public class FrontEndClient extends Application {
         t_rounds.setText("Round: " + ++rounds);
 
         status = roundWinner;
-        System.out.println("yolo");
         
         // update score list every round
         updateScoreList();
@@ -995,36 +991,35 @@ public class FrontEndClient extends Application {
 
             // client tied round
             case 0:
-                //t_score.setText("" + ++score);
-                //t_opponent_score.setText("" + ++opponent_score);
+                // n/a
                 break;
 
             // client won round
             case 1:
-                //t_score.setText("" + ++score);
+                // n/a
                 break;
 
             // client lost round
             case 2:
-                //t_opponent_score.setText("" + ++opponent_score);
+                // n/a
                 break;
 
             // client won game
             case 3:
                 System.out.println("> Game won!");
-                notifyGameOver("Game won!");
+                notifyGameOver("Game won! - Congratulations, " + username + ".");
                 break;
 
             // client lost game
             case 4:
                 System.out.println("> Game lost!");
-                notifyGameOver("Game lost!");
+                notifyGameOver("Game lost! - Better luck next time, " + username + ".");
                 break;
 
             // client tied game
             case 5:
                 System.out.println("> Game tied!");
-                notifyGameOver("Game tied!");
+                notifyGameOver("Game tied! - Sorry, " + username + ".");
                 break;
         }
         
@@ -1043,6 +1038,17 @@ public class FrontEndClient extends Application {
                 Alert alert = new Alert(AlertType.NONE, status + "\n\nClick OK to return to lobby view.", ButtonType.OK);
                 alert.setTitle("Game Over");
                 alert.setResizable(false);
+                
+                final Window window = alert.getDialogPane().getScene().getWindow();
+
+                window.addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event) {
+                        window.setX((mainStage.getX() + mainStage.getWidth() / 2) - (window.getWidth() / 2));
+                        window.setY((mainStage.getY() + mainStage.getHeight() / 2) - (window.getHeight() / 2));
+                    }
+                });
+                
                 alert.showAndWait();
 
                 // accept confirmation and reset game
@@ -1066,6 +1072,17 @@ public class FrontEndClient extends Application {
                 alert.setTitle("Server is FULL");
                 alert.setHeaderText("Failed to Join");
                 alert.setResizable(false);
+                
+                final Window window = alert.getDialogPane().getScene().getWindow();
+
+                window.addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
+                    @Override
+                    public void handle(WindowEvent event) {
+                        window.setX((mainStage.getX() + mainStage.getWidth() / 2) - (window.getWidth() / 2));
+                        window.setY((mainStage.getY() + mainStage.getHeight() / 2) - (window.getHeight() / 2));
+                    }
+                });
+                
                 alert.showAndWait();
 
                 // accept confirmation and update lobby list
@@ -1114,7 +1131,7 @@ public class FrontEndClient extends Application {
         if (input.equals(word)) {
             t_word.setFill(Color.GREEN);
             
-            Platform.runLater(() -> { 
+            Platform.runLater(() -> {
                 tf_word.clear(); 
             });
             setClientDone();
@@ -1150,7 +1167,6 @@ public class FrontEndClient extends Application {
         words.add("generate");
         
         return words.get(new Random().nextInt(words.size()));
-        
     }
 
 }

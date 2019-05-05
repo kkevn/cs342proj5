@@ -80,6 +80,36 @@ public class Lobby {
         return max;
     }
     
+    /* returns top three scores in lobby */
+    public int[] getTopScores() {
+
+        int first = 0, second = 0, third = 0;
+        
+        for (Map.Entry<String, Integer> entry : connected_clients.entrySet()) {
+            int points = entry.getValue();
+            
+            // new first place score found
+            if (points > first) {
+                third = second; 
+                second = first; 
+                first = points; 
+            } 
+        
+            // new second place score found
+            else if (points > second) {
+                third = second; 
+                second = points; 
+            } 
+        
+            // new third place score found
+            else if (points > third) {
+                third = points;
+            }
+        }
+        
+        return new int[] {first, second, third};
+    }
+    
     /* add the specified client(s) by username to the lobby */
     public void addUsers(String... users) {
         for (String s : users) {
